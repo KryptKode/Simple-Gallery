@@ -1,1 +1,5 @@
 include ':app'
+include ':subsampling-scale-image-view'
+project(":subsampling-scale-image-view").projectDir = new File("/Users/darthpaul/StudioProjects/subsampling-scale-image-view/library")
+include ':commons'
+project(":commons").projectDir = new File("/Users/darthpaul/StudioProjects/krypt/Simple-Commons/commons")

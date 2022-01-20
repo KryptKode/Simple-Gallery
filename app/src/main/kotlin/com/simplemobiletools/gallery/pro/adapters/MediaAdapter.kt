@@ -21,6 +21,7 @@ import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.views.MyRecyclerView
+import com.simplemobiletools.commons.views.bottomactionmenu.BottomActionMenuView
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.activities.ViewPagerActivity
 import com.simplemobiletools.gallery.pro.dialogs.DeleteWithRememberDialog
@@ -128,7 +129,7 @@ class MediaAdapter(
         }
     }
 
-    override fun prepareActionMode(menu: Menu) {
+    override fun onBottomActionMenuCreated(view: BottomActionMenuView) {
         val selectedItems = getSelectedItems()
         if (selectedItems.isEmpty()) {
             return
@@ -137,15 +138,15 @@ class MediaAdapter(
         val isOneItemSelected = isOneItemSelected()
         val selectedPaths = selectedItems.map { it.path } as ArrayList<String>
         val isInRecycleBin = selectedItems.firstOrNull()?.getIsInRecycleBin() == true
-        menu.apply {
-            findItem(R.id.cab_rename).isVisible = !isInRecycleBin
-            findItem(R.id.cab_add_to_favorites).isVisible = !isInRecycleBin
-            findItem(R.id.cab_fix_date_taken).isVisible = !isInRecycleBin
-            findItem(R.id.cab_move_to).isVisible = !isInRecycleBin
-            findItem(R.id.cab_open_with).isVisible = isOneItemSelected
-            findItem(R.id.cab_confirm_selection).isVisible = isAGetIntent && allowMultiplePicks && selectedKeys.isNotEmpty()
-            findItem(R.id.cab_restore_recycle_bin_files).isVisible = selectedPaths.all { it.startsWith(activity.recycleBinPath) }
-            findItem(R.id.cab_create_shortcut).isVisible = isOreoPlus() && isOneItemSelected
+        view.apply {
+            toggleItemVisibility(R.id.cab_rename, !isInRecycleBin)
+            toggleItemVisibility(R.id.cab_add_to_favorites, !isInRecycleBin)
+            toggleItemVisibility(R.id.cab_fix_date_taken, !isInRecycleBin)
+            toggleItemVisibility(R.id.cab_move_to, !isInRecycleBin)
+            toggleItemVisibility(R.id.cab_open_with, isOneItemSelected)
+            toggleItemVisibility(R.id.cab_confirm_selection, isAGetIntent && allowMultiplePicks && selectedKeys.isNotEmpty())
+            toggleItemVisibility(R.id.cab_restore_recycle_bin_files, selectedPaths.all { it.startsWith(activity.recycleBinPath) })
+            toggleItemVisibility(R.id.cab_create_shortcut, isOreoPlus() && isOneItemSelected)
 
             checkHideBtnVisibility(this, selectedItems)
             checkFavoriteBtnVisibility(this, selectedItems)
@@ -168,9 +169,9 @@ class MediaAdapter(
             R.id.cab_remove_from_favorites -> toggleFavorites(false)
             R.id.cab_restore_recycle_bin_files -> restoreFiles()
             R.id.cab_share -> shareMedia()
-            R.id.cab_rotate_right -> rotateSelection(90)
-            R.id.cab_rotate_left -> rotateSelection(270)
-            R.id.cab_rotate_one_eighty -> rotateSelection(180)
+//            R.id.cab_rotate_right -> rotateSelection(90)
+//            R.id.cab_rotate_left -> rotateSelection(270)
+//            R.id.cab_rotate_one_eighty -> rotateSelection(180)
             R.id.cab_copy_to -> copyMoveTo(true)
             R.id.cab_move_to -> moveFilesTo()
             R.id.cab_create_shortcut -> createShortcut()
@@ -190,8 +191,6 @@ class MediaAdapter(
 
     override fun getItemKeyPosition(key: Int) = media.indexOfFirst { (it as? Medium)?.path?.hashCode() == key }
 
-    override fun onActionModeCreated() {}
-
     override fun onActionModeDestroyed() {}
 
     override fun onViewRecycled(holder: ViewHolder) {
@@ -208,15 +207,15 @@ class MediaAdapter(
 
     fun isASectionTitle(position: Int) = media.getOrNull(position) is ThumbnailSection
 
-    private fun checkHideBtnVisibility(menu: Menu, selectedItems: ArrayList<Medium>) {
+    private fun checkHideBtnVisibility(view: BottomActionMenuView, selectedItems: ArrayList<Medium>) {
         val isInRecycleBin = selectedItems.firstOrNull()?.getIsInRecycleBin() == true
-        menu.findItem(R.id.cab_hide).isVisible = !isInRecycleBin && selectedItems.any { !it.isHidden() }
-        menu.findItem(R.id.cab_unhide).isVisible = !isInRecycleBin && selectedItems.any { it.isHidden() }
+        view.toggleItemVisibility(R.id.cab_hide, !isInRecycleBin && selectedItems.any { !it.isHidden() })
+        view.toggleItemVisibility(R.id.cab_unhide, !isInRecycleBin && selectedItems.any { it.isHidden() })
     }
 
-    private fun checkFavoriteBtnVisibility(menu: Menu, selectedItems: ArrayList<Medium>) {
-        menu.findItem(R.id.cab_add_to_favorites).isVisible = selectedItems.none { it.getIsInRecycleBin() } && selectedItems.any { !it.isFavorite }
-        menu.findItem(R.id.cab_remove_from_favorites).isVisible = selectedItems.none { it.getIsInRecycleBin() } && selectedItems.any { it.isFavorite }
+    private fun checkFavoriteBtnVisibility(view: BottomActionMenuView, selectedItems: ArrayList<Medium>) {
+        view.toggleItemVisibility(R.id.cab_add_to_favorites, selectedItems.none { it.getIsInRecycleBin() } && selectedItems.any { !it.isFavorite })
+        view.toggleItemVisibility(R.id.cab_remove_from_favorites, selectedItems.none { it.getIsInRecycleBin() } && selectedItems.any { it.isFavorite })
     }
 
     private fun confirmSelection() {

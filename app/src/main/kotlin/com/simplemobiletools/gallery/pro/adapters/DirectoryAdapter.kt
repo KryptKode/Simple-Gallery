@@ -29,6 +29,7 @@ import com.simplemobiletools.commons.interfaces.ItemTouchHelperContract
 import com.simplemobiletools.commons.interfaces.StartReorderDragListener
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.views.MyRecyclerView
+import com.simplemobiletools.commons.views.bottomactionmenu.BottomActionMenuView
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.activities.MediaActivity
 import com.simplemobiletools.gallery.pro.dialogs.ConfirmDeleteFolderDialog
@@ -107,27 +108,27 @@ class DirectoryAdapter(
 
     override fun getItemCount() = dirs.size
 
-    override fun prepareActionMode(menu: Menu) {
+    override fun onBottomActionMenuCreated(view: BottomActionMenuView) {
         val selectedPaths = getSelectedPaths()
         if (selectedPaths.isEmpty()) {
             return
         }
 
         val isOneItemSelected = isOneItemSelected()
-        menu.apply {
-            findItem(R.id.cab_move_to_top).isVisible = isDragAndDropping
-            findItem(R.id.cab_move_to_bottom).isVisible = isDragAndDropping
+        view.apply {
+            toggleItemVisibility(R.id.cab_move_to_top, isDragAndDropping)
+            toggleItemVisibility(R.id.cab_move_to_bottom, isDragAndDropping)
 
-            findItem(R.id.cab_rename).isVisible = !selectedPaths.contains(FAVORITES) && !selectedPaths.contains(RECYCLE_BIN)
-            findItem(R.id.cab_change_cover_image).isVisible = isOneItemSelected
+            toggleItemVisibility(R.id.cab_rename, !selectedPaths.contains(FAVORITES) && !selectedPaths.contains(RECYCLE_BIN))
+            toggleItemVisibility(R.id.cab_change_cover_image, isOneItemSelected)
 
-            findItem(R.id.cab_lock).isVisible = selectedPaths.any { !config.isFolderProtected(it) }
-            findItem(R.id.cab_unlock).isVisible = selectedPaths.any { config.isFolderProtected(it) }
+            toggleItemVisibility(R.id.cab_lock, selectedPaths.any { !config.isFolderProtected(it) })
+            toggleItemVisibility(R.id.cab_unlock, selectedPaths.any { config.isFolderProtected(it) })
 
-            findItem(R.id.cab_empty_recycle_bin).isVisible = isOneItemSelected && selectedPaths.first() == RECYCLE_BIN
-            findItem(R.id.cab_empty_disable_recycle_bin).isVisible = isOneItemSelected && selectedPaths.first() == RECYCLE_BIN
+            toggleItemVisibility(R.id.cab_empty_recycle_bin, isOneItemSelected && selectedPaths.first() == RECYCLE_BIN)
+            toggleItemVisibility(R.id.cab_empty_disable_recycle_bin, isOneItemSelected && selectedPaths.first() == RECYCLE_BIN)
 
-            findItem(R.id.cab_create_shortcut).isVisible = isOreoPlus() && isOneItemSelected
+            toggleItemVisibility(R.id.cab_create_shortcut, isOreoPlus() && isOneItemSelected)
 
             checkHideBtnVisibility(this, selectedPaths)
             checkPinBtnVisibility(this, selectedPaths)
@@ -172,8 +173,6 @@ class DirectoryAdapter(
 
     override fun getItemKeyPosition(key: Int) = dirs.indexOfFirst { it.path.hashCode() == key }
 
-    override fun onActionModeCreated() {}
-
     override fun onActionModeDestroyed() {
         if (isDragAndDropping) {
             notifyDataSetChanged()
@@ -193,15 +192,15 @@ class DirectoryAdapter(
         }
     }
 
-    private fun checkHideBtnVisibility(menu: Menu, selectedPaths: ArrayList<String>) {
-        menu.findItem(R.id.cab_hide).isVisible = selectedPaths.any { !it.doesThisOrParentHaveNoMedia(HashMap(), null) }
-        menu.findItem(R.id.cab_unhide).isVisible = selectedPaths.any { it.doesThisOrParentHaveNoMedia(HashMap(), null) }
+    private fun checkHideBtnVisibility(view: BottomActionMenuView, selectedPaths: ArrayList<String>) {
+        view.toggleItemVisibility(R.id.cab_hide, selectedPaths.any { !it.doesThisOrParentHaveNoMedia(HashMap(), null) })
+        view.toggleItemVisibility(R.id.cab_unhide, selectedPaths.any { it.doesThisOrParentHaveNoMedia(HashMap(), null) })
     }
 
-    private fun checkPinBtnVisibility(menu: Menu, selectedPaths: ArrayList<String>) {
+    private fun checkPinBtnVisibility(view: BottomActionMenuView, selectedPaths: ArrayList<String>) {
         val pinnedFolders = config.pinnedFolders
-        menu.findItem(R.id.cab_pin).isVisible = selectedPaths.any { !pinnedFolders.contains(it) }
-        menu.findItem(R.id.cab_unpin).isVisible = selectedPaths.any { pinnedFolders.contains(it) }
+        view.toggleItemVisibility(R.id.cab_pin, selectedPaths.any { !pinnedFolders.contains(it) })
+        view.toggleItemVisibility(R.id.cab_unpin, selectedPaths.any { pinnedFolders.contains(it) })
     }
 
     private fun moveSelectedItemsToTop() {

@@ -8,6 +8,7 @@ import com.simplemobiletools.commons.adapters.MyRecyclerViewAdapter
 import com.simplemobiletools.commons.extensions.isPathOnSD
 import com.simplemobiletools.commons.interfaces.RefreshRecyclerViewListener
 import com.simplemobiletools.commons.views.MyRecyclerView
+import com.simplemobiletools.commons.views.bottomactionmenu.BottomActionMenuView
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.removeNoMedia
@@ -27,7 +28,7 @@ class ManageHiddenFoldersAdapter(
 
     override fun getActionMenuId() = R.menu.cab_hidden_folders
 
-    override fun prepareActionMode(menu: Menu) {}
+    override fun onBottomActionMenuCreated(view: BottomActionMenuView) {}
 
     override fun actionItemPressed(id: Int) {
         when (id) {
@@ -43,7 +44,6 @@ class ManageHiddenFoldersAdapter(
 
     override fun getItemKeyPosition(key: Int) = folders.indexOfFirst { it.hashCode() == key }
 
-    override fun onActionModeCreated() {}
 
     override fun onActionModeDestroyed() {}
 
