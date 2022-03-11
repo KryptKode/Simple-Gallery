@@ -11,6 +11,7 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Video
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -86,10 +87,16 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var mStoredAdjustedPrimaryColor = 0
     private var mStoredStyleString = ""
 
+    private  val TAG = "App"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         appLaunched(BuildConfig.APPLICATION_ID)
+
+        contentResolver.persistedUriPermissions.map {
+            Log.w(TAG, "persistedUriPermissions: ${it.uri}")
+        }
 
         if (savedInstanceState == null) {
             config.temporarilyShowHidden = false

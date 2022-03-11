@@ -1,6 +1,7 @@
 package com.simplemobiletools.gallery.pro
 
 import android.app.Application
+import android.util.Log
 import com.github.ajalt.reprint.core.Reprint
 import com.simplemobiletools.commons.extensions.checkUseEnglish
 import com.squareup.picasso.Downloader
