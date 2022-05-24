@@ -3,7 +3,13 @@
 buildscript {
     ext.kotlin_version = '1.6.21'
     ext.is_proprietary = gradle.startParameter.taskNames.any { task -> task.contains("Proprietary") }
-
+    ext {
+        propCompileSdkVersion = 31
+        propMinSdkVersion = 21
+        propTargetSdkVersion = propCompileSdkVersion
+        propVersionCode = 1
+        propVersionName = '5.34.26'
+    }
     repositories {
         google()
         jcenter()
